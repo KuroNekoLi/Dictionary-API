@@ -51,7 +51,8 @@ def fetch_cambridge_entry(word: str) -> dict:
           "part_of_speech": "詞性",
           "definitions": [
             {
-              "definition": "英文定義 中文翻譯",
+              "en_definition": "英文定義",
+              "zh_definition": "中文翻譯",
               "examples": ["例句1", "例句2", ...]
             },
             ...
@@ -115,9 +116,6 @@ def fetch_cambridge_entry(word: str) -> dict:
                     zh_text = trans.get_text(strip=True)
                     break
 
-            # 組合定義文本
-            definition_text = f"{en_text} {zh_text}" if zh_text else en_text
-
             # 提取該定義對應的例句
             examples = []
             example_blocks = def_block.select(".examp.dexamp")
@@ -129,15 +127,16 @@ def fetch_cambridge_entry(word: str) -> dict:
                 zh_example = ex_block.select_one(".trans.dtrans")
 
                 if en_example:
-                    en_text = clean_text(en_example.get_text(separator=' ', strip=True))
-                    zh_text = zh_example.get_text(strip=True) if zh_example else ""
+                    en_text_example = clean_text(en_example.get_text(separator=' ', strip=True))
+                    zh_text_example = zh_example.get_text(strip=True) if zh_example else ""
 
-                    example_text = f"{en_text} {zh_text}" if zh_text else en_text
+                    example_text = f"{en_text_example} {zh_text_example}" if zh_text_example else en_text_example
                     examples.append(example_text)
 
-            # 將定義和其對應的例句組合
+            # 將定義與例句加入列表（區分中英文定義）
             definitions.append({
-                "definition": definition_text,
+                "en_definition": en_text,
+                "zh_definition": zh_text,
                 "examples": examples
             })
 
@@ -193,7 +192,10 @@ def main():
             print(f"\n【{entry['part_of_speech']}】")
 
             for def_idx, definition in enumerate(entry['definitions'], 1):
-                print(f" 定義 {def_idx}：{definition['definition']}")
+                print(f" 定義 {def_idx}：")
+                print(f"  英文：{definition['en_definition']}")
+                if definition['zh_definition']:
+                    print(f"  中文：{definition['zh_definition']}")
 
                 for ex_idx, example in enumerate(definition['examples'], 1):
                     print(f"   例句 {def_idx}.{ex_idx}：{example}")
