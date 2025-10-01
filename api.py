@@ -38,7 +38,7 @@ class WordResponse(BaseModel):
     entries: List[Entry] = Field(..., description="詞條列表")
 
     class Config:
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "word": "adjust",
                 "pronunciations": {
