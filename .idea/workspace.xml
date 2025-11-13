@@ -4,10 +4,14 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="367be5d9-31aa-48a0-8a4f-dabf4fd7c27a" name="Changes" comment="add FastAPI-based Cambridge Dictionary Scraper API with endpoints for single and multiple word definitions">
+    <list default="true" id="367be5d9-31aa-48a0-8a4f-dabf4fd7c27a" name="Changes" comment="chore: 更新依賴版本至FastAPI 0.115.0、Uvicorn 0.32.0及Pydantic 2.9.2">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api.py" beforeDir="false" afterPath="$PROJECT_DIR$/api.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LinCrawers.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/render.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/render.yaml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/zbpack.json" beforeDir="false" afterPath="$PROJECT_DIR$/zbpack.json" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -22,24 +26,36 @@
     </option>
   </component>
   <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="crawler" />
+      </map>
+    </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+    <option name="UPDATE_TYPE" value="REBASE" />
   </component>
-  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
-  "lastFilter": {
-    "state": "OPEN",
-    "assignee": "KuroNekoLi"
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;KuroNekoLi&quot;
   }
-}]]></component>
-  <component name="GithubPullRequestsUISettings"><![CDATA[{
-  "selectedUrlAndAccountId": {
-    "url": "https://github.com/KuroNekoLi/TOEICAppCrawler.git",
-    "accountId": "3fc7007d-27b1-4068-8c43-7da49f4281f2"
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/KuroNekoLi/TOEICAppCrawler.git&quot;,
+    &quot;accountId&quot;: &quot;3fc7007d-27b1-4068-8c43-7da49f4281f2&quot;
   }
-}]]></component>
+}</component>
+  <component name="HighlightingSettingsPerFile">
+    <setting file="file://$PROJECT_DIR$/.venv/lib/python3.9/site-packages/urllib3/__init__.py" root0="SKIP_INSPECTION" />
+  </component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 4
 }</component>
   <component name="ProjectId" id="2zDLZmMhRlqYvb0Hul0rJ3sJKDw" />
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
@@ -48,13 +64,26 @@
   "keyToString": {
     "ModuleVcsDetector.initialDetectionPerformed": "true",
     "Python.LinCrawers.executor": "Run",
+    "Python.api (1).executor": "Run",
     "Python.api.executor": "Run",
+    "Python.copyright_safe_generator.executor": "Run",
+    "Python.generate_100_questions.executor": "Run",
+    "Python.improved_fixed_generator.executor": "Run",
+    "Python.main.executor": "Run",
+    "Python.main_crawler.executor": "Run",
+    "Python.test_fixed_generator.executor": "Run",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "main"
+    "git-widget-placeholder": "main",
+    "last_opened_file_path": "/Users/linli/PycharmProjects/PythonProject"
   }
 }]]></component>
-  <component name="RunManager" selected="Python.api">
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$" />
+    </key>
+  </component>
+  <component name="RunManager" selected="Python.main">
     <configuration name="LinCrawers" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="PythonProject" />
       <option name="ENV_FILES" value="" />
@@ -69,6 +98,28 @@
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/LinCrawers.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="api (1)" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="PythonProject" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/interface" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/interface/api.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -99,9 +150,56 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
+    <configuration name="main" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="PythonProject" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/app" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/app/main.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="main_crawler" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="PythonProject" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/main_crawler.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.main" />
+        <item itemvalue="Python.api (1)" />
         <item itemvalue="Python.api" />
+        <item itemvalue="Python.main_crawler" />
         <item itemvalue="Python.LinCrawers" />
       </list>
     </recent_temporary>
@@ -109,7 +207,7 @@
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-python-sdk-53e2683a6804-9cdd278e9d02-com.jetbrains.pycharm.community.sharedIndexes.bundled-PC-251.26094.141" />
+        <option value="bundled-python-sdk-598b0484d0b5-e2d783800521-com.jetbrains.pycharm.community.sharedIndexes.bundled-PC-251.26927.74" />
       </set>
     </attachedChunks>
   </component>
@@ -153,7 +251,127 @@
       <option name="project" value="LOCAL" />
       <updated>1751265041911</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="feat: add Pydantic models for word definitions and update API response types">
+      <option name="closed" value="true" />
+      <created>1751266202667</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1751266202667</updated>
+    </task>
+    <task id="LOCAL-00006" summary="temp">
+      <option name="closed" value="true" />
+      <created>1751285410426</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1751285410426</updated>
+    </task>
+    <task id="LOCAL-00007" summary="temp">
+      <option name="closed" value="true" />
+      <created>1751295903147</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1751295903147</updated>
+    </task>
+    <task id="LOCAL-00008" summary="temp">
+      <option name="closed" value="true" />
+      <created>1751330018944</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1751330018944</updated>
+    </task>
+    <task id="LOCAL-00009" summary="temp">
+      <option name="closed" value="true" />
+      <created>1751339423037</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1751339423037</updated>
+    </task>
+    <task id="LOCAL-00010" summary="temp">
+      <option name="closed" value="true" />
+      <created>1751339685967</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1751339685967</updated>
+    </task>
+    <task id="LOCAL-00011" summary="temp">
+      <option name="closed" value="true" />
+      <created>1751341484926</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1751341484926</updated>
+    </task>
+    <task id="LOCAL-00012" summary="feat: 爬蟲">
+      <option name="closed" value="true" />
+      <created>1751343762729</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1751343762729</updated>
+    </task>
+    <task id="LOCAL-00013" summary="feat: 題庫api">
+      <option name="closed" value="true" />
+      <created>1751343782902</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1751343782902</updated>
+    </task>
+    <task id="LOCAL-00014" summary="feat: 題庫api 修改">
+      <option name="closed" value="true" />
+      <created>1752117422834</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1752117422834</updated>
+    </task>
+    <task id="LOCAL-00015" summary="feat: 爬蟲相關">
+      <option name="closed" value="true" />
+      <created>1752117502890</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1752117502890</updated>
+    </task>
+    <task id="LOCAL-00016" summary="temp">
+      <option name="closed" value="true" />
+      <created>1759307008305</created>
+      <option name="number" value="00016" />
+      <option name="presentableId" value="LOCAL-00016" />
+      <option name="project" value="LOCAL" />
+      <updated>1759307008305</updated>
+    </task>
+    <task id="LOCAL-00017" summary="refactor: 更新Pydantic模型的配置，修正json_schema_extra屬性">
+      <option name="closed" value="true" />
+      <created>1759307960471</created>
+      <option name="number" value="00017" />
+      <option name="presentableId" value="LOCAL-00017" />
+      <option name="project" value="LOCAL" />
+      <updated>1759307960471</updated>
+    </task>
+    <task id="LOCAL-00018" summary="chore: 更新依賴版本至FastAPI 0.115.0、Uvicorn 0.32.0及Pydantic 2.9.2">
+      <option name="closed" value="true" />
+      <created>1759308414611</created>
+      <option name="number" value="00018" />
+      <option name="presentableId" value="LOCAL-00018" />
+      <option name="project" value="LOCAL" />
+      <updated>1759308414611</updated>
+    </task>
+    <task id="LOCAL-00019" summary="chore: 更新依賴版本至FastAPI 0.115.0、Uvicorn 0.32.0及Pydantic 2.9.2">
+      <option name="closed" value="true" />
+      <created>1759308445321</created>
+      <option name="number" value="00019" />
+      <option name="presentableId" value="LOCAL-00019" />
+      <option name="project" value="LOCAL" />
+      <updated>1759308445321</updated>
+    </task>
+    <option name="localTasksCounter" value="20" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -161,7 +379,19 @@
       <map>
         <entry key="MAIN">
           <value>
-            <State />
+            <State>
+              <option name="FILTERS">
+                <map>
+                  <entry key="branch">
+                    <value>
+                      <list>
+                        <option value="main" />
+                      </list>
+                    </value>
+                  </entry>
+                </map>
+              </option>
+            </State>
           </value>
         </entry>
       </map>
@@ -170,6 +400,15 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="init" />
     <MESSAGE value="add FastAPI-based Cambridge Dictionary Scraper API with endpoints for single and multiple word definitions" />
-    <option name="LAST_COMMIT_MESSAGE" value="add FastAPI-based Cambridge Dictionary Scraper API with endpoints for single and multiple word definitions" />
+    <MESSAGE value="feat: add Pydantic models for word definitions and update API response types" />
+    <MESSAGE value="final" />
+    <MESSAGE value="feat: 爬蟲" />
+    <MESSAGE value="feat: 題庫api" />
+    <MESSAGE value="feat: 題庫api 修改" />
+    <MESSAGE value="feat: 爬蟲相關" />
+    <MESSAGE value="temp" />
+    <MESSAGE value="refactor: 更新Pydantic模型的配置，修正json_schema_extra屬性" />
+    <MESSAGE value="chore: 更新依賴版本至FastAPI 0.115.0、Uvicorn 0.32.0及Pydantic 2.9.2" />
+    <option name="LAST_COMMIT_MESSAGE" value="chore: 更新依賴版本至FastAPI 0.115.0、Uvicorn 0.32.0及Pydantic 2.9.2" />
   </component>
 </project>
