@@ -19,6 +19,7 @@ COW_URL = "https://bond-lab.github.io/cow/"
 COW_LICENSE = COW_URL + "LICENSE"
 HAN = re.compile(r"[\u3400-\u9fff]")
 REVIEWED_EXAMPLES = Path(__file__).with_name("reviewed_examples.tsv")
+TRANSLATED_EXAMPLES = Path(__file__).with_name("translated_examples.tsv")
 
 
 @dataclass
@@ -134,6 +135,28 @@ def _index_reviewed_examples(conn, path: Path, traditional):
             ])
 
 
+def _index_translated_examples(conn, path: Path, traditional):
+    conn.execute("CREATE TEMP TABLE translated (synset TEXT PRIMARY KEY, example TEXT)")
+    with path.open(encoding="utf-8", newline="") as source:
+        conn.executemany(
+            "INSERT INTO translated VALUES (?, ?)",
+            (
+                (row["synset"], traditional(row["example"]).replace(",", "，"))
+                for row in csv.DictReader(source, delimiter="\t")
+            ),
+        )
+    conn.execute("""
+        INSERT INTO examples
+        SELECT s.word, s.synset, t.example, 'Princeton WordNet（機翻校訂）',
+               'Princeton WordNet / Helsinki-NLP OPUS-MT',
+               'https://wordnet.princeton.edu/',
+               'https://wordnet.princeton.edu/license-and-commercial-use',
+               'reviewed_translation', 2
+        FROM senses s JOIN translated t ON s.synset = t.synset
+        WHERE NOT EXISTS (SELECT 1 FROM examples e WHERE e.word = s.word AND e.synset = s.synset)
+    """)
+
+
 def build_index(english: Path, chinese: Path, output: Path, examples: Path = REVIEWED_EXAMPLES):
     traditional = OpenCC("s2twp.json").convert
     with tempfile.TemporaryDirectory(dir=output.parent, prefix=output.name + ".") as temporary:
@@ -160,6 +183,7 @@ def build_index(english: Path, chinese: Path, output: Path, examples: Path = REV
             )
             _index_senses(conn, english, _chinese_senses(chinese, traditional))
             _index_reviewed_examples(conn, examples, traditional)
+            _index_translated_examples(conn, TRANSLATED_EXAMPLES, traditional)
             for label, query in (
                 ("words", "SELECT count(DISTINCT word) FROM senses"),
                 ("word senses", "SELECT count(*) FROM senses"),

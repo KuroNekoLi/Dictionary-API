@@ -99,7 +99,7 @@ ECDICT CSV 來源是 skywind3000/ECDICT（https://github.com/skywind3000/ECDICT�
 
 ### 按詞義查詢與繁體中文例句
 
-詞義索引將 [OMW English Wordnet 2.0](https://github.com/omwn/omw-data/releases/tag/v2.0) 與 [Chinese Open Wordnet 1.1](https://bond-lab.github.io/cow/) 的詞義透過共用的 ILI ID 對齊。詞網收錄的中文例句直接隸屬該詞義，另外用 `reviewed_examples.tsv` 為常見詞補上逐義撰寫的繁體例句。缺少可靠例句的詞義仍可查詢。
+詞義索引將 [OMW English Wordnet 2.0](https://github.com/omwn/omw-data/releases/tag/v2.0) 與 [Chinese Open Wordnet 1.1](https://bond-lab.github.io/cow/) 的詞義透過共用的 ILI ID 對齊。詞網收錄的中文例句直接隸屬該詞義，另外用 `reviewed_examples.tsv` 為常見詞補上逐義撰寫的繁體例句。`translated_examples.tsv` 補入已篩選校訂的 WordNet 例句，使用 [Helsinki-NLP OPUS-MT](https://huggingface.co/Helsinki-NLP/opus-mt-en-zh) 離線翻譯，保留原詞義 ID，回應標為機翻校訂。API 執行期間只讀 SQLite。缺少可靠例句的詞義仍可查詢。
 
 取得兩個詞網官方壓縮檔並解壓，保留每份 XML 旁的 LICENSE。把以下命令的路徑換成解壓位置：
 
