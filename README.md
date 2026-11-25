@@ -103,7 +103,11 @@ ECDICT CSV 來源是 skywind3000/ECDICT（https://github.com/skywind3000/ECDICT�
 
 `batch_wordnet_examples.tsv` 補入同一 ILI 的 WordNet 英文例句離線譯文，回應標為「自動翻譯」。這批資料經詞義關鍵詞、英文句子結構和回譯檢查，仍可能有翻譯瑕疵。`word_atlas_examples.tsv` 只收錄已核對的單字與 ILI 組合，用於仍缺例句的詞義。[Word Atlas](https://github.com/designfuchen/word-atlas/blob/main/README.en.md#open-dataset) 的例句由 Word Atlas contributors（词光）提供，依 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 使用並轉成繁體。
 
+`checked_wordnet_examples.tsv` 是同一 WordNet 詞義原有英文例句的離線譯文候選，經回譯相似度篩選後匯入，仍屬自動翻譯，並非人工逐句校對。
+
 `common_word_examples.tsv` 累計為 6,000 個常見單字加入英中雙語例句，按 ECDICT 詞頻排序；沒有 ECDICT 頻率的少數詞條按 Word Atlas 的 CEFR 程度排序。資料取自 Word Atlas 的第一個常用詞義和第一條例句；先按詞性及英文、中文定義比對 WordNet，無法可靠對應時保留 Word Atlas 自己的詞性與雙語詞義，避免把例句放到意思不符的詞義下。API 例句會同時顯示英文原句與台灣繁體中文翻譯，並保留 Word Atlas 來源資訊。
+
+`tatoeba_examples.tsv` 收錄經英文詞形及繁體中文釋義比對的句對，保留兩個 Tatoeba 句子頁面連結以供作者署名查核；文字依 [CC BY 2.0 FR](https://creativecommons.org/licenses/by/2.0/fr/) 使用，中文轉為台灣繁體。依目前匯入快照，6,000 個目標詞共有 18,981 個 WordNet 詞義，其中 9,785 個已有雙語例句，9,196 個仍缺少雙語例句。這些資料源尚未覆蓋所有詞義，不能將「每個詞義都有例句」視為已完成。
 
 取得兩個詞網官方壓縮檔並解壓，保留每份 XML 旁的 LICENSE。把以下命令的路徑換成解壓位置：
 

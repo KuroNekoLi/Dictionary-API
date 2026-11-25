@@ -1,4 +1,4 @@
-word	synset	pos	en	zh	example
+word	synset	pos	en	zh	example	en_example
 bank	i85041				暴雨過後，河水漫過了河岸。
 bank	i81364				她把第一份薪水存進了銀行。
 bank	i31939				飛機向左傾斜，準備轉向跑道。
@@ -75,9 +75,9 @@ plant	i29566				我們在後院種了三棵樹。
 date	i116878				請在表格右上角填上今天的日期。
 date	i81169				他們週六晚上有一場約會。
 date	i77874				她在燕麥粥裡加了幾顆椰棗。
-refine	i24084	v	To improve something by making careful changes.	改進；潤飾	她反覆修訂文章，讓文字更精練。
-refine	i23734	v	To make something more intricate or richer in detail.	使更細緻；使更豐富	設計師加了幾筆細節，讓圖案更細緻。
-refine	i23738	v	To make a method or measurement more precise.	改良以提高精確度	研究團隊改良了分析方法，現在能辨識更細微的變化。
-refine	i23739	v	To remove or reduce a component through refining.	在精製過程中去除或減少	糙米在精製成白米的過程中會流失部分營養。
-refine	i24086	v	To remove impurities from a substance.	精煉；提純	工廠會精煉粗糖，去除其中的雜質。
-refine	i24087	v	To process a raw material so that it can be used.	煉製；加工原料	煉油廠把原油煉製成可使用的燃料。
+refine	i24084	v	To improve something by making careful changes.	改進；潤飾	她反覆修訂文章，讓文字更精練。	She revised the article several times to make the wording more concise.
+refine	i23734	v	To make something more intricate or richer in detail.	使更細緻；使更豐富	設計師加了幾筆細節，讓圖案更細緻。	The designer added a few details to make the pattern more refined.
+refine	i23738	v	To make a method or measurement more precise.	改良以提高精確度	研究團隊改良了分析方法，現在能辨識更細微的變化。	The research team refined its analysis method, allowing it to detect subtler changes.
+refine	i23739	v	To remove or reduce a component through refining.	在精製過程中去除或減少	糙米在精製成白米的過程中會流失部分營養。	Some nutrients are lost when brown rice is refined into white rice.
+refine	i24086	v	To remove impurities from a substance.	精煉；提純	工廠會精煉粗糖，去除其中的雜質。	The factory refines raw sugar to remove impurities.
+refine	i24087	v	To process a raw material so that it can be used.	煉製；加工原料	煉油廠把原油煉製成可使用的燃料。	The refinery processes crude oil into usable fuel.

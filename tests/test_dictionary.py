@@ -9,6 +9,7 @@ from app.infrastructure.db.import_wordnet import (
     ATLAS_AUTHOR,
     ATLAS_LICENSE,
     _index_atlas_examples,
+    _index_tatoeba_examples,
     _index_translated_examples,
 )
 from app.infrastructure.db.wordnet_repository import WordnetRepository
@@ -17,6 +18,29 @@ from app.usecases.word_query import QueryWordUsecase
 
 
 class DictionaryTest(unittest.TestCase):
+    def test_tatoeba_pairs_keep_sentence_attribution_and_traditional_chinese(self):
+        with tempfile.TemporaryDirectory() as folder, sqlite3.connect(":memory:") as conn:
+            conn.executescript("""
+                CREATE TABLE senses(word, synset);
+                CREATE TABLE examples(
+                    word, synset, text, source, author, source_url, license_url, match_type, priority,
+                    PRIMARY KEY(word, synset, text)
+                );
+                INSERT INTO senses VALUES ('bank', 'shore');
+            """)
+            source = Path(folder) / "tatoeba.tsv"
+            source.write_text(
+                "word\tsynset\ten_example\tzh_example\ten_author\tzh_author\ten_id\tzh_id\n"
+                "bank\tshore\tThey sat by the river bank.\t他們坐在河边。\t\tcontributor\t123\t456\n",
+                encoding="utf-8",
+            )
+            _index_tatoeba_examples(conn, source, lambda value: value.replace("边", "邊"))
+            row = conn.execute("SELECT * FROM examples").fetchone()
+            self.assertEqual(row[2], "They sat by the river bank.\n他們坐在河邊。")
+            self.assertEqual(row[3], "Tatoeba")
+            self.assertIn("https://tatoeba.org/en/sentences/show/123", row[5])
+            self.assertIn("contributor", row[4])
+
     def test_imported_sources_fill_only_matching_uncovered_senses(self):
         with tempfile.TemporaryDirectory() as folder, sqlite3.connect(":memory:") as conn:
             conn.executescript("""

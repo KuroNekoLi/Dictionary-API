@@ -23,6 +23,10 @@ TRANSLATED_EXAMPLES = Path(__file__).with_name("translated_examples.tsv")
 BATCH_EXAMPLES = Path(__file__).with_name("batch_wordnet_examples.tsv")
 ATLAS_EXAMPLES = Path(__file__).with_name("word_atlas_examples.tsv")
 COMMON_WORD_EXAMPLES = Path(__file__).with_name("common_word_examples.tsv")
+TATOEBA_EXAMPLES = Path(__file__).with_name("tatoeba_examples.tsv")
+CHECKED_WORDNET_EXAMPLES = Path(__file__).with_name("checked_wordnet_examples.tsv")
+TATOEBA_URL = "https://tatoeba.org/en/downloads"
+TATOEBA_LICENSE = "https://creativecommons.org/licenses/by/2.0/fr/"
 ATLAS_URL = (
     "https://github.com/designfuchen/word-atlas/blob/"
     "4ff9c429745c12506a9d07d3c29f0791a66191d5/data/word-atlas.json"
@@ -139,30 +143,43 @@ def _index_reviewed_examples(conn, path: Path, traditional):
                 ).fetchone()
                 if not exists:
                     raise ValueError(f"{word}: unknown sense {synset}")
+            english_example = (row.get("en_example") or "").strip()
+            example_text = (
+                f"{english_example}\n{traditional(example)}"
+                if english_example else traditional(example)
+            )
             _write_examples(conn, [
-                (word, synset, traditional(example), "自編例句", None, None, None, "editorial", 0)
+                (word, synset, example_text, "自編例句", None, None, None, "editorial",
+                 -1 if english_example else 0)
             ])
 
 
 def _index_translated_examples(conn, path: Path, traditional, *, reviewed: bool):
-    conn.execute("CREATE TEMP TABLE translated (synset TEXT PRIMARY KEY, example TEXT)")
+    conn.execute("""CREATE TEMP TABLE translated (
+        synset TEXT PRIMARY KEY, example TEXT, english TEXT NOT NULL DEFAULT ''
+    )""")
     with path.open(encoding="utf-8", newline="") as source:
         conn.executemany(
-            "INSERT INTO translated VALUES (?, ?)",
+            "INSERT INTO translated VALUES (?, ?, ?)",
             (
-                (row["synset"], traditional(row["example"]).replace(",", "，"))
+                (row["synset"], traditional(row["example"]).replace(",", "，"),
+                 (row.get("english") or "").strip())
                 for row in csv.DictReader(source, delimiter="\t")
             ),
         )
     conn.execute("""
         INSERT INTO examples
-        SELECT s.word, s.synset, t.example, ?,
+        SELECT s.word, s.synset,
+               CASE WHEN t.english != '' THEN t.english || char(10) || t.example ELSE t.example END, ?,
                'Princeton WordNet / Helsinki-NLP OPUS-MT',
                'https://wordnet.princeton.edu/',
                'https://wordnet.princeton.edu/license-and-commercial-use',
-               ?, ?
+               ?, CASE WHEN t.english != '' THEN -1 ELSE ? END
         FROM senses s JOIN translated t ON s.synset = t.synset
-        WHERE NOT EXISTS (SELECT 1 FROM examples e WHERE e.word = s.word AND e.synset = s.synset)
+        WHERE NOT EXISTS (
+            SELECT 1 FROM examples e WHERE e.word = s.word AND e.synset = s.synset
+              AND instr(e.text, char(10)) > 0
+        )
     """, (
         "Princeton WordNet（機翻校訂）" if reviewed else "Princeton WordNet（自動翻譯）",
         "reviewed_translation" if reviewed else "machine_translation",
@@ -210,10 +227,40 @@ def _index_common_word_examples(conn, path: Path, traditional):
             )])
 
 
+def _index_tatoeba_examples(conn, path: Path, traditional):
+    with path.open(encoding="utf-8", newline="") as source:
+        for row in csv.DictReader(source, delimiter="\t"):
+            word, synset = row["word"], row["synset"]
+            if not conn.execute(
+                "SELECT 1 FROM senses WHERE word = ? AND synset = ?", (word, synset)
+            ).fetchone():
+                continue
+            english = row["en_example"].strip()
+            chinese = traditional(row["zh_example"].strip())
+            if not english or not chinese:
+                continue
+            text = f"{english}\n{chinese}"
+            en_id, zh_id = row["en_id"], row["zh_id"]
+            links = (
+                f"https://tatoeba.org/en/sentences/show/{en_id}; "
+                f"https://tatoeba.org/en/sentences/show/{zh_id}"
+            )
+            authors = "; ".join(
+                f"{language}: {row[key].strip()}" for language, key in (
+                    ("English", "en_author"), ("Chinese", "zh_author")
+                ) if row.get(key, "").strip()
+            ) or "See linked Tatoeba sentence pages for contributor attribution"
+            _write_examples(conn, [(
+                word, synset, text, "Tatoeba", authors, links, TATOEBA_LICENSE,
+                "tatoeba_gloss_match", 0,
+            )])
+
+
 def build_index(
     english: Path, chinese: Path, output: Path, examples: Path = REVIEWED_EXAMPLES,
     batch_examples: Path = BATCH_EXAMPLES, atlas_examples: Path = ATLAS_EXAMPLES,
     common_word_examples: Path = COMMON_WORD_EXAMPLES,
+    tatoeba_examples: Path = TATOEBA_EXAMPLES,
 ):
     traditional = OpenCC("s2twp.json").convert
     with tempfile.TemporaryDirectory(dir=output.parent, prefix=output.name + ".") as temporary:
@@ -239,14 +286,19 @@ def build_index(
                     ("Word Atlas", f"{ATLAS_AUTHOR}. CC BY 4.0 ({ATLAS_LICENSE}). "
                      f"Data: {ATLAS_URL}. Changes: selected examples, mapped to common WordNet senses, "
                      "combined English and Chinese text, and converted to Traditional Chinese."),
+                    ("Tatoeba", "Tatoeba contributors. Text licensed under CC BY 2.0 FR "
+                     f"({TATOEBA_LICENSE}). Sentence contributor links are stored per example; "
+                     f"data source: {TATOEBA_URL}. Chinese text converted to Traditional Chinese."),
                 ],
             )
             _index_senses(conn, english, _chinese_senses(chinese, traditional))
             _index_reviewed_examples(conn, examples, traditional)
             _index_translated_examples(conn, TRANSLATED_EXAMPLES, traditional, reviewed=True)
             _index_translated_examples(conn, batch_examples, traditional, reviewed=False)
+            _index_translated_examples(conn, CHECKED_WORDNET_EXAMPLES, traditional, reviewed=False)
             _index_atlas_examples(conn, atlas_examples, traditional)
             _index_common_word_examples(conn, common_word_examples, traditional)
+            _index_tatoeba_examples(conn, tatoeba_examples, traditional)
             for label, query in (
                 ("words", "SELECT count(DISTINCT word) FROM senses"),
                 ("word senses", "SELECT count(*) FROM senses"),
@@ -267,6 +319,8 @@ if __name__ == "__main__":
     parser.add_argument("--batch-examples", type=Path, default=BATCH_EXAMPLES)
     parser.add_argument("--atlas-examples", type=Path, default=ATLAS_EXAMPLES)
     parser.add_argument("--common-word-examples", type=Path, default=COMMON_WORD_EXAMPLES)
+    parser.add_argument("--tatoeba-examples", type=Path, default=TATOEBA_EXAMPLES)
     args = parser.parse_args()
     build_index(args.english, args.chinese, args.output, args.examples,
-                args.batch_examples, args.atlas_examples, args.common_word_examples)
+                args.batch_examples, args.atlas_examples, args.common_word_examples,
+                args.tatoeba_examples)
