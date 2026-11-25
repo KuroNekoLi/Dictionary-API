@@ -1,5 +1,10 @@
 from pydantic import BaseModel, Field
+from pydantic import field_validator
 from typing import List, Optional
+from opencc import OpenCC
+
+
+_traditional_chinese = OpenCC("s2twp.json")
 
 
 class PronunciationsSchema(BaseModel):
@@ -14,8 +19,15 @@ class ExampleSchema(BaseModel):
 
 class DefinitionSchema(BaseModel):
     en_definition: str = Field(..., description="英文定義")
-    zh_definition: Optional[str] = Field(None, description="中文翻譯")
+    zh_definition: Optional[str] = Field(None, description="台灣繁體中文翻譯")
     examples: List[ExampleSchema] = Field(default=[], description="例句")
+
+    @field_validator("zh_definition", mode="before")
+    @classmethod
+    def convert_zh_definition_to_traditional(cls, value):
+        if isinstance(value, str):
+            return _traditional_chinese.convert(value)
+        return value
 
 
 class EntrySchema(BaseModel):
