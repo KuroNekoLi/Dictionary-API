@@ -15,23 +15,6 @@ ecdict_repo = EcdictRepository()
 usecase = QueryWordUsecase(repo, crawler, ecdict_repo)
 
 
-@router.get("/{word}", response_model=WordSchema)
-def get_word(word: str):
-    """
-    使用者查詢流程：
-    1. 先查 sqlite 資料庫
-    2. 沒有則查詢 VPS 上的 ECDICT 本機詞庫
-    3. 詞庫沒有才啟動 Cambridge 爬蟲
-    4. 爬蟲結果回存快取資料庫
-    5. 統一回應
-    """
-    try:
-        word_obj = usecase.query_word(word)
-        return WordSchema.model_validate(asdict(word_obj))
-    except Exception as e:
-        raise HTTPException(status_code=404, detail=str(e))
-
-
 @router.get("/batch", response_model=Dict[str, WordSchema])
 def get_words_batch(words: str = Query(..., description="以逗號分隔的英文單字清單")):
     """
@@ -47,3 +30,20 @@ def get_words_batch(words: str = Query(..., description="以逗號分隔的英�
         except Exception as e:
             results[w] = {"error": str(e)}
     return results
+
+
+@router.get("/{word}", response_model=WordSchema)
+def get_word(word: str):
+    """
+    使用者查詢流程：
+    1. 先查 sqlite 資料庫
+    2. 沒有則查詢 VPS 上的 ECDICT 本機詞庫
+    3. 詞庫沒有才啟動 Cambridge 爬蟲
+    4. 爬蟲結果回存快取資料庫
+    5. 統一回應
+    """
+    try:
+        word_obj = usecase.query_word(word)
+        return WordSchema.model_validate(asdict(word_obj))
+    except Exception as e:
+        raise HTTPException(status_code=404, detail=str(e))
