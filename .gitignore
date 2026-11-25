@@ -144,3 +144,7 @@ $RECYCLE.BIN/
 *.msm
 *.msp
 *.lnk
+
+# ECDICT source data and generated local index (keep ECDICT-LICENSE)
+/data/ecdict.csv
+/data/ecdict.db

@@ -6,6 +6,7 @@ from typing import List, Optional
 class Pronunciations:
     uk: Optional[str] = None
     us: Optional[str] = None
+    phonetic: Optional[str] = None
 
 
 @dataclass

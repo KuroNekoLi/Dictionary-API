@@ -85,6 +85,16 @@ curl -X GET 'http://localhost:8000/word/adjust' -H 'accept: application/json'
 
 ---
 
+### 免費本機 ECDICT 詞庫
+
+服務會先查既有 words.db 快取，再查 VPS 本機的 ECDICT SQLite 索引，最後才對 ECDICT 沒有的單字呼叫 Cambridge。常見字即使 Cambridge 回傳 403，仍可由本機詞庫提供結果。
+
+ECDICT CSV 來源是 skywind3000/ECDICT（https://github.com/skywind3000/ECDICT），授權檔保存在 data/ECDICT-LICENSE。原始 CSV 和產生的 data/ecdict.db 留在 VPS，不納入 Git。回應沿用既有 /word/{word} 格式；ECDICT 資料提供一般音標與中文釋義，沒有英美腔調區分或例句，中文內容以資料集原文為準。
+
+更新詞庫時，在 data/ 放入最新版 ecdict.csv 和授權檔，再執行：
+
+    python -m app.infrastructure.db.import_ecdict
+
 ## FAQ
 
 - 如遇 "unable to open database file"，請檢查 `data/` 資料夾權限與路徑。

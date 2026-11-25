@@ -5,6 +5,7 @@ from typing import List, Optional
 class PronunciationsSchema(BaseModel):
     uk: Optional[str] = Field(None, description="英式發音音標")
     us: Optional[str] = Field(None, description="美式發音音標")
+    phonetic: Optional[str] = Field(None, description="ECDICT 提供的未區分英美腔調音標")
 
 
 class ExampleSchema(BaseModel):

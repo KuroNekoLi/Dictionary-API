@@ -2,6 +2,7 @@ from fastapi import APIRouter, HTTPException, Query
 from app.interfaces.schemas.word_schema import WordSchema
 from app.usecases.word_query import QueryWordUsecase
 from app.infrastructure.db.sqlite_word_repository import SqliteDictionaryRepository
+from app.infrastructure.db.ecdict_repository import EcdictRepository
 from app.infrastructure.external.cambridge_crawler import CambridgeCrawler
 from dataclasses import asdict
 from typing import Dict
@@ -10,7 +11,8 @@ router = APIRouter()
 
 repo = SqliteDictionaryRepository()
 crawler = CambridgeCrawler()
-usecase = QueryWordUsecase(repo, crawler)
+ecdict_repo = EcdictRepository()
+usecase = QueryWordUsecase(repo, crawler, ecdict_repo)
 
 
 @router.get("/{word}", response_model=WordSchema)
@@ -18,9 +20,10 @@ def get_word(word: str):
     """
     使用者查詢流程：
     1. 先查 sqlite 資料庫
-    2. 沒有則啟動爬蟲
-    3. 回存新資料進資料庫
-    4. 統一回應
+    2. 沒有則查詢 VPS 上的 ECDICT 本機詞庫
+    3. 詞庫沒有才啟動 Cambridge 爬蟲
+    4. 爬蟲結果回存快取資料庫
+    5. 統一回應
     """
     try:
         word_obj = usecase.query_word(word)
