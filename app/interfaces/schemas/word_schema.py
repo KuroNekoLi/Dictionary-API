@@ -14,7 +14,14 @@ class PronunciationsSchema(BaseModel):
 
 
 class ExampleSchema(BaseModel):
-    example_text: str = Field(..., description="例句")
+    example_text: str = Field(..., description="例句；中文內容使用台灣繁體")
+
+    @field_validator("example_text", mode="before")
+    @classmethod
+    def convert_example_text_to_traditional(cls, value):
+        if isinstance(value, str):
+            return _traditional_chinese.convert(value)
+        return value
 
 
 class DefinitionSchema(BaseModel):
