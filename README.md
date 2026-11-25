@@ -101,9 +101,17 @@ ECDICT CSV 來源是 skywind3000/ECDICT（https://github.com/skywind3000/ECDICT�
 
 詞義索引將 [OMW English Wordnet 2.0](https://github.com/omwn/omw-data/releases/tag/v2.0) 與 [Chinese Open Wordnet 1.1](https://bond-lab.github.io/cow/) 的詞義透過共用的 ILI ID 對齊。詞網收錄的中文例句直接隸屬該詞義，另外用 `reviewed_examples.tsv` 為常見詞補上逐義撰寫的繁體例句。`translated_examples.tsv` 補入已篩選校訂的 WordNet 例句，使用 [Helsinki-NLP OPUS-MT](https://huggingface.co/Helsinki-NLP/opus-mt-en-zh) 離線翻譯，保留原詞義 ID，回應標為機翻校訂。API 執行期間只讀 SQLite。缺少可靠例句的詞義仍可查詢。
 
+`batch_wordnet_examples.tsv` 補入同一 ILI 的 WordNet 英文例句離線譯文，回應標為「自動翻譯」。這批資料經詞義關鍵詞、英文句子結構和回譯檢查，仍可能有翻譯瑕疵。`word_atlas_examples.tsv` 只收錄已核對的單字與 ILI 組合，用於仍缺例句的詞義。[Word Atlas](https://github.com/designfuchen/word-atlas/blob/main/README.en.md#open-dataset) 的例句由 Word Atlas contributors（词光）提供，依 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 使用並轉成繁體。
+
 取得兩個詞網官方壓縮檔並解壓，保留每份 XML 旁的 LICENSE。把以下命令的路徑換成解壓位置：
 
     python -m app.infrastructure.db.import_wordnet omw-en/omw-en.xml cow/cow-1.1.xml
+
+重跑自動翻譯時，使用 Python 3.12 以上、`ctranslate2`、`sentencepiece`、`nltk` 及 `averaged_perceptron_tagger_eng`。解開 [CTranslate2 格式的 OPUS-MT 英中與中英模型](https://huggingface.co/Unbakedcookie/live-translator-models)，準備尚未加入新批次的 SQLite 索引，然後執行：
+
+    python -m app.infrastructure.db.translate_wordnet_examples omw-en/omw-en.xml data/wordnet.db opus-mt-en-zh candidate-examples.tsv
+    python -m app.infrastructure.db.check_wordnet_translations candidate-examples.tsv opus-mt-zh-en checked-examples.tsv
+    python -m app.infrastructure.db.import_wordnet omw-en/omw-en.xml cow/cow-1.1.xml --batch-examples checked-examples.tsv
 
 索引會寫到 `data/wordnet.db`，包含詞網的授權聲明。API 保留 `examples[].example_text` 並提供可選的 `source`、`author`、`source_url`、`license_url`、`match_type`。中文文字統一為台灣繁體。
 

@@ -5,12 +5,49 @@ from pathlib import Path
 
 from app.domain.models.word import Word
 from app.infrastructure.db.ecdict_repository import EcdictRepository
+from app.infrastructure.db.import_wordnet import (
+    ATLAS_AUTHOR,
+    ATLAS_LICENSE,
+    _index_atlas_examples,
+    _index_translated_examples,
+)
 from app.infrastructure.db.wordnet_repository import WordnetRepository
 from app.interfaces.schemas.word_schema import DefinitionSchema
 from app.usecases.word_query import QueryWordUsecase
 
 
 class DictionaryTest(unittest.TestCase):
+    def test_imported_sources_fill_only_matching_uncovered_senses(self):
+        with tempfile.TemporaryDirectory() as folder, sqlite3.connect(":memory:") as conn:
+            conn.executescript("""
+                CREATE TABLE senses(word, synset);
+                CREATE TABLE examples(
+                    word, synset, text, source, author, source_url, license_url, match_type, priority
+                );
+                INSERT INTO senses VALUES ('bank', 'money'), ('bank', 'shore'), ('riverbank', 'shore'),
+                                          ('lender', 'credit'), ('stream', 'water');
+                INSERT INTO examples VALUES ('bank', 'money', '我去銀行。', '自編例句',
+                                             NULL, NULL, NULL, 'editorial', 0);
+            """)
+            batch_file = Path(folder) / "batch.tsv"
+            batch_file.write_text("synset\texample\nmoney\t這句不能覆蓋。\ncredit\t貸方要求還款。\n", encoding="utf-8")
+            atlas_file = Path(folder) / "atlas.tsv"
+            atlas_file.write_text(
+                "word\tsynset\texample\nbank\tshore\t她沿著河岸散步。\n"
+                "bank\tmoney\t這句不能覆蓋。\n", encoding="utf-8",
+            )
+            _index_translated_examples(conn, batch_file, str, reviewed=False)
+            _index_atlas_examples(conn, atlas_file, str)
+            self.assertEqual(
+                conn.execute("SELECT word, synset, match_type FROM examples ORDER BY word, synset").fetchall(),
+                [("bank", "money", "editorial"), ("bank", "shore", "reviewed_atlas_mapping"),
+                 ("lender", "credit", "machine_translation")],
+            )
+            self.assertEqual(
+                conn.execute("SELECT author, license_url FROM examples WHERE synset = 'shore'").fetchone(),
+                (ATLAS_AUTHOR, ATLAS_LICENSE),
+            )
+
     def test_uses_release_only_when_the_current_ecdict_has_no_word(self):
         with tempfile.TemporaryDirectory() as folder:
             current, release = (Path(folder) / name for name in ("current.db", "release.db"))

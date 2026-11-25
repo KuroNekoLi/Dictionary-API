@@ -20,6 +20,14 @@ COW_LICENSE = COW_URL + "LICENSE"
 HAN = re.compile(r"[\u3400-\u9fff]")
 REVIEWED_EXAMPLES = Path(__file__).with_name("reviewed_examples.tsv")
 TRANSLATED_EXAMPLES = Path(__file__).with_name("translated_examples.tsv")
+BATCH_EXAMPLES = Path(__file__).with_name("batch_wordnet_examples.tsv")
+ATLAS_EXAMPLES = Path(__file__).with_name("word_atlas_examples.tsv")
+ATLAS_URL = (
+    "https://github.com/designfuchen/word-atlas/blob/"
+    "4ff9c429745c12506a9d07d3c29f0791a66191d5/data/word-atlas.json"
+)
+ATLAS_LICENSE = "https://creativecommons.org/licenses/by/4.0/"
+ATLAS_AUTHOR = "Word Atlas contributors（词光）"
 
 
 @dataclass
@@ -135,7 +143,7 @@ def _index_reviewed_examples(conn, path: Path, traditional):
             ])
 
 
-def _index_translated_examples(conn, path: Path, traditional):
+def _index_translated_examples(conn, path: Path, traditional, *, reviewed: bool):
     conn.execute("CREATE TEMP TABLE translated (synset TEXT PRIMARY KEY, example TEXT)")
     with path.open(encoding="utf-8", newline="") as source:
         conn.executemany(
@@ -147,17 +155,41 @@ def _index_translated_examples(conn, path: Path, traditional):
         )
     conn.execute("""
         INSERT INTO examples
-        SELECT s.word, s.synset, t.example, 'Princeton WordNet（機翻校訂）',
+        SELECT s.word, s.synset, t.example, ?,
                'Princeton WordNet / Helsinki-NLP OPUS-MT',
                'https://wordnet.princeton.edu/',
                'https://wordnet.princeton.edu/license-and-commercial-use',
-               'reviewed_translation', 2
+               ?, ?
         FROM senses s JOIN translated t ON s.synset = t.synset
         WHERE NOT EXISTS (SELECT 1 FROM examples e WHERE e.word = s.word AND e.synset = s.synset)
-    """)
+    """, (
+        "Princeton WordNet（機翻校訂）" if reviewed else "Princeton WordNet（自動翻譯）",
+        "reviewed_translation" if reviewed else "machine_translation",
+        2 if reviewed else 3,
+    ))
+    conn.execute("DROP TABLE translated")
 
 
-def build_index(english: Path, chinese: Path, output: Path, examples: Path = REVIEWED_EXAMPLES):
+def _index_atlas_examples(conn, path: Path, traditional):
+    with path.open(encoding="utf-8", newline="") as source:
+        for row in csv.DictReader(source, delimiter="\t"):
+            word, synset = row["word"], row["synset"]
+            if not conn.execute(
+                "SELECT 1 FROM senses WHERE word = ? AND synset = ?", (word, synset)
+            ).fetchone():
+                raise ValueError(f"{word}: unknown Word Atlas mapping {synset}")
+            conn.execute("""
+                INSERT INTO examples
+                SELECT ?, ?, ?, 'Word Atlas', ?, ?, ?, 'reviewed_atlas_mapping', 4
+                WHERE NOT EXISTS (SELECT 1 FROM examples WHERE word = ? AND synset = ?)
+            """, (word, synset, traditional(row["example"]), ATLAS_AUTHOR, ATLAS_URL,
+                  ATLAS_LICENSE, word, synset))
+
+
+def build_index(
+    english: Path, chinese: Path, output: Path, examples: Path = REVIEWED_EXAMPLES,
+    batch_examples: Path = BATCH_EXAMPLES, atlas_examples: Path = ATLAS_EXAMPLES,
+):
     traditional = OpenCC("s2twp.json").convert
     with tempfile.TemporaryDirectory(dir=output.parent, prefix=output.name + ".") as temporary:
         database = Path(temporary) / output.name
@@ -179,11 +211,15 @@ def build_index(english: Path, chinese: Path, output: Path, examples: Path = REV
                 [
                     ("Princeton WordNet", english.with_name("LICENSE").read_text(encoding="utf-8")),
                     ("Chinese Open Wordnet", chinese.with_name("LICENSE").read_text(encoding="utf-8")),
+                    ("Word Atlas", f"{ATLAS_AUTHOR}. CC BY 4.0 ({ATLAS_LICENSE}). "
+                     f"Data: {ATLAS_URL}. Changes: selected examples and converted to Traditional Chinese."),
                 ],
             )
             _index_senses(conn, english, _chinese_senses(chinese, traditional))
             _index_reviewed_examples(conn, examples, traditional)
-            _index_translated_examples(conn, TRANSLATED_EXAMPLES, traditional)
+            _index_translated_examples(conn, TRANSLATED_EXAMPLES, traditional, reviewed=True)
+            _index_translated_examples(conn, batch_examples, traditional, reviewed=False)
+            _index_atlas_examples(conn, atlas_examples, traditional)
             for label, query in (
                 ("words", "SELECT count(DISTINCT word) FROM senses"),
                 ("word senses", "SELECT count(*) FROM senses"),
@@ -201,5 +237,8 @@ if __name__ == "__main__":
     parser.add_argument("chinese", type=Path)
     parser.add_argument("--output", type=Path, default=DB_PATH)
     parser.add_argument("--examples", type=Path, default=REVIEWED_EXAMPLES)
+    parser.add_argument("--batch-examples", type=Path, default=BATCH_EXAMPLES)
+    parser.add_argument("--atlas-examples", type=Path, default=ATLAS_EXAMPLES)
     args = parser.parse_args()
-    build_index(args.english, args.chinese, args.output, args.examples)
+    build_index(args.english, args.chinese, args.output, args.examples,
+                args.batch_examples, args.atlas_examples)
