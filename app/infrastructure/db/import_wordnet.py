@@ -22,6 +22,7 @@ REVIEWED_EXAMPLES = Path(__file__).with_name("reviewed_examples.tsv")
 TRANSLATED_EXAMPLES = Path(__file__).with_name("translated_examples.tsv")
 BATCH_EXAMPLES = Path(__file__).with_name("batch_wordnet_examples.tsv")
 ATLAS_EXAMPLES = Path(__file__).with_name("word_atlas_examples.tsv")
+COMMON_WORD_EXAMPLES = Path(__file__).with_name("common_word_examples.tsv")
 ATLAS_URL = (
     "https://github.com/designfuchen/word-atlas/blob/"
     "4ff9c429745c12506a9d07d3c29f0791a66191d5/data/word-atlas.json"
@@ -186,9 +187,27 @@ def _index_atlas_examples(conn, path: Path, traditional):
                   ATLAS_LICENSE, word, synset))
 
 
+def _index_common_word_examples(conn, path: Path, traditional):
+    with path.open(encoding="utf-8", newline="") as source:
+        for row in csv.DictReader(source, delimiter="\t"):
+            word, synset = row["word"], row["synset"]
+            if not conn.execute(
+                "SELECT 1 FROM senses WHERE word = ? AND synset = ?", (word, synset)
+            ).fetchone():
+                raise ValueError(f"{word}: unknown common-word sense {synset}")
+            english = row["en_example"].strip()
+            chinese = traditional(row["zh_example"].strip())
+            bilingual = f"{english}\n{chinese}"
+            _write_examples(conn, [(
+                word, synset, bilingual, "Word Atlas", ATLAS_AUTHOR, ATLAS_URL,
+                ATLAS_LICENSE, "common_word_atlas", 4
+            )])
+
+
 def build_index(
     english: Path, chinese: Path, output: Path, examples: Path = REVIEWED_EXAMPLES,
     batch_examples: Path = BATCH_EXAMPLES, atlas_examples: Path = ATLAS_EXAMPLES,
+    common_word_examples: Path = COMMON_WORD_EXAMPLES,
 ):
     traditional = OpenCC("s2twp.json").convert
     with tempfile.TemporaryDirectory(dir=output.parent, prefix=output.name + ".") as temporary:
@@ -212,7 +231,8 @@ def build_index(
                     ("Princeton WordNet", english.with_name("LICENSE").read_text(encoding="utf-8")),
                     ("Chinese Open Wordnet", chinese.with_name("LICENSE").read_text(encoding="utf-8")),
                     ("Word Atlas", f"{ATLAS_AUTHOR}. CC BY 4.0 ({ATLAS_LICENSE}). "
-                     f"Data: {ATLAS_URL}. Changes: selected examples and converted to Traditional Chinese."),
+                     f"Data: {ATLAS_URL}. Changes: selected examples, mapped to common WordNet senses, "
+                     "combined English and Chinese text, and converted to Traditional Chinese."),
                 ],
             )
             _index_senses(conn, english, _chinese_senses(chinese, traditional))
@@ -220,6 +240,7 @@ def build_index(
             _index_translated_examples(conn, TRANSLATED_EXAMPLES, traditional, reviewed=True)
             _index_translated_examples(conn, batch_examples, traditional, reviewed=False)
             _index_atlas_examples(conn, atlas_examples, traditional)
+            _index_common_word_examples(conn, common_word_examples, traditional)
             for label, query in (
                 ("words", "SELECT count(DISTINCT word) FROM senses"),
                 ("word senses", "SELECT count(*) FROM senses"),
@@ -239,6 +260,7 @@ if __name__ == "__main__":
     parser.add_argument("--examples", type=Path, default=REVIEWED_EXAMPLES)
     parser.add_argument("--batch-examples", type=Path, default=BATCH_EXAMPLES)
     parser.add_argument("--atlas-examples", type=Path, default=ATLAS_EXAMPLES)
+    parser.add_argument("--common-word-examples", type=Path, default=COMMON_WORD_EXAMPLES)
     args = parser.parse_args()
     build_index(args.english, args.chinese, args.output, args.examples,
-                args.batch_examples, args.atlas_examples)
+                args.batch_examples, args.atlas_examples, args.common_word_examples)
