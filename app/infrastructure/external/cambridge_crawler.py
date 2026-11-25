@@ -55,13 +55,9 @@ class CambridgeCrawler:
                 examples = []
                 example_blocks = def_block.select(".examp.dexamp")
                 for ex_block in example_blocks:
-                    en_example = ex_block.select_one(".eg.deg")
                     zh_example = ex_block.select_one(".trans.dtrans")
-                    if en_example:
-                        en_text_example = self.clean_text(en_example.get_text(separator=' ', strip=True))
-                        zh_text_example = zh_example.get_text(strip=True) if zh_example else ""
-                        val = f"{en_text_example} {zh_text_example}" if zh_text_example else en_text_example
-                        examples.append(Example(val))
+                    if zh_example:
+                        examples.append(Example(zh_example.get_text(strip=True)))
                 definitions.append(Definition(en_definition=en_text, zh_definition=zh_text, examples=examples))
             if definitions:
                 entries.append(Entry(part_of_speech=part_of_speech, definitions=definitions))

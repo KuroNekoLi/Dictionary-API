@@ -1,12 +1,14 @@
 import pathlib
 import re
 import sqlite3
+from contextlib import closing
 from typing import Optional
 
 from app.domain.models.word import Definition, Entry, Pronunciations, Word
 
 BASE = pathlib.Path(__file__).resolve().parents[3]
 DB_PATH = BASE / "data" / "ecdict.db"
+RELEASE_DB_PATH = BASE / "data" / "ecdict-release-28.db"
 
 _POS_NAMES = {
     "n": "noun", "v": "verb", "vi": "intransitive verb", "vt": "transitive verb",
@@ -22,8 +24,9 @@ _POS_PREFIX = re.compile(r"^([A-Za-z]+)\.\s+(.+)$")
 class EcdictRepository:
     """Read-only lookup against the locally imported ECDICT SQLite database."""
 
-    def __init__(self, db_path: pathlib.Path = DB_PATH):
-        self.db_path = pathlib.Path(db_path)
+    def __init__(self, db_path: pathlib.Path = DB_PATH, release_path: pathlib.Path = RELEASE_DB_PATH):
+        self.db_path = pathlib.Path(db_path).resolve()
+        self.release_path = pathlib.Path(release_path).resolve()
 
     @staticmethod
     def _entries(translation: str) -> list[Entry]:
@@ -51,11 +54,19 @@ class EcdictRepository:
         normalized = word.strip().casefold()
         if not normalized:
             return None
-        with sqlite3.connect(f"file:{self.db_path}?mode=ro", uri=True, timeout=5) as conn:
-            row = conn.execute(
-                "SELECT word, phonetic, translation FROM words WHERE normalized_word = ?",
-                (normalized,),
-            ).fetchone()
+        row = None
+        if self.db_path.is_file() and self.db_path.stat().st_size:
+            with closing(sqlite3.connect(self.db_path.as_uri() + "?mode=ro", uri=True)) as conn:
+                row = conn.execute(
+                    "SELECT word, phonetic, translation FROM words WHERE normalized_word = ?",
+                    (normalized,),
+                ).fetchone()
+        if row is None and self.release_path.is_file():
+            with closing(sqlite3.connect(self.release_path.as_uri() + "?mode=ro", uri=True)) as conn:
+                row = conn.execute(
+                    "SELECT word, phonetic, translation FROM stardict WHERE word = ?",
+                    (normalized,),
+                ).fetchone()
         if row is None:
             return None
         source_word, phonetic, translation = row

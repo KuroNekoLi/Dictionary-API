@@ -12,6 +12,11 @@ class Pronunciations:
 @dataclass
 class Example:
     example_text: str
+    source: Optional[str] = None
+    author: Optional[str] = None
+    source_url: Optional[str] = None
+    license_url: Optional[str] = None
+    match_type: Optional[str] = None
 
 
 @dataclass

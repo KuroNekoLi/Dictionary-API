@@ -1,22 +1,33 @@
-from app.domain.models.word import Word
+from app.domain.models.word import Pronunciations, Word
 from app.domain.repositories.word_repository import DictionaryRepository
 from app.infrastructure.external.cambridge_crawler import CambridgeCrawler
 
 
 class QueryWordUsecase:
-    def __init__(self, repo: DictionaryRepository, crawler: CambridgeCrawler, ecdict_repo=None):
+    def __init__(self, repo: DictionaryRepository, crawler: CambridgeCrawler, ecdict_repo=None, wordnet_repo=None):
         self.repo = repo
         self.crawler = crawler
         self.ecdict_repo = ecdict_repo
+        self.wordnet_repo = wordnet_repo
 
     def query_word(self, word: str) -> Word:
         db_word = self.repo.get_word(word)
+        wordnet_word = self.wordnet_repo.get_word(word) if self.wordnet_repo else None
+        if wordnet_word and (
+            db_word is None
+            or any(d.examples for entry in wordnet_word.entries for d in entry.definitions)
+        ):
+            cached = db_word.pronunciations if db_word else Pronunciations()
+            ecdict_word = self.ecdict_repo.get_word(word) if self.ecdict_repo else None
+            if ecdict_word:
+                cached.phonetic = cached.phonetic or ecdict_word.pronunciations.phonetic
+            wordnet_word.pronunciations = cached
+            return wordnet_word
         if db_word:
             return db_word
-        if self.ecdict_repo is not None:
-            ecdict_word = self.ecdict_repo.get_word(word)
-            if ecdict_word:
-                return ecdict_word
+        ecdict_word = self.ecdict_repo.get_word(word) if self.ecdict_repo else None
+        if ecdict_word:
+            return ecdict_word
         word_obj = self.crawler.fetch_word(word)
         self.repo.save_word(word_obj)
         return word_obj

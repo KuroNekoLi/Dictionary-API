@@ -3,6 +3,7 @@ from app.interfaces.schemas.word_schema import WordSchema
 from app.usecases.word_query import QueryWordUsecase
 from app.infrastructure.db.sqlite_word_repository import SqliteDictionaryRepository
 from app.infrastructure.db.ecdict_repository import EcdictRepository
+from app.infrastructure.db.wordnet_repository import WordnetRepository
 from app.infrastructure.external.cambridge_crawler import CambridgeCrawler
 from dataclasses import asdict
 from typing import Dict
@@ -12,7 +13,7 @@ router = APIRouter()
 repo = SqliteDictionaryRepository()
 crawler = CambridgeCrawler()
 ecdict_repo = EcdictRepository()
-usecase = QueryWordUsecase(repo, crawler, ecdict_repo)
+usecase = QueryWordUsecase(repo, crawler, ecdict_repo, WordnetRepository())
 
 
 @router.get("/batch", response_model=Dict[str, WordSchema])
@@ -36,7 +37,7 @@ def get_words_batch(words: str = Query(..., description="以逗號分隔的英�
 def get_word(word: str):
     """
     使用者查詢流程：
-    1. 先查 sqlite 資料庫
+    1. 查詢本機對齊詞義與快取
     2. 沒有則查詢 VPS 上的 ECDICT 本機詞庫
     3. 詞庫沒有才啟動 Cambridge 爬蟲
     4. 爬蟲結果回存快取資料庫

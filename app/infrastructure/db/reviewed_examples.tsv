@@ -1,0 +1,77 @@
+word	synset	pos	en	zh	example
+bank	i85041				暴雨過後，河水漫過了河岸。
+bank	i81364				她把第一份薪水存進了銀行。
+bank	i31939				飛機向左傾斜，準備轉向跑道。
+bank	i81523				控制室裡一整排螢幕同時亮了起來。
+bank	i106894				那一局結束後，莊家的賭本只剩一半。
+bank	i106960				醫院設有血庫，以備緊急手術使用。
+bank	i25156				我們指望公車準時到站，才能趕上火車。
+bank	i33287				她把收到的現金存進自己的帳戶。
+bank	i33455				他的家族在那座小鎮經營銀行已經三代。
+bank	i33456				這一局由她當莊家。
+bank	i50441				那棟舊銀行大樓改建成了市立圖書館。
+run	i31347	v	To move quickly on foot.	跑；跑步	我每天早上沿著河邊跑步。
+run	i32121				小偷一聽見警笛，就拔腿逃跑。
+run	i35084				這條步道沿著海岸延伸十公里。
+run	i33943				她經營一家獨立書店。
+run	i32080				雨水沿著屋簷流了下來。
+run	i27063				他打算競選下一任市長。
+run	i29360				引擎整晚都在運轉。
+run	i34507				更新後，請再執行一次測試程式。
+run	i34905				這齣舞台劇會持續演到下個月底。
+light	i97892				清晨的陽光透過窗簾照進來。
+light	i55679				她在桌上放了一盞小燈。
+light	i6491				行李箱很輕，小朋友也提得動。
+light	i23187				街燈把整條巷子照亮了。
+light	i2315				她穿了一件淺藍色的襯衫。
+light	i31625				一隻蝴蝶輕輕落在窗台上。
+light	i35480				停電時，她點燃了一根蠟燭。
+light	i6465				晚餐我想吃點清淡的食物。
+set	i29197				請把杯子放在桌上。
+set	i25206				委員會訂出了新的安全標準。
+set	i79315				他買了一套餐具送給剛搬家的朋友。
+set	i59443				美術組正在搭建下一場戲的佈景。
+set	i31584				太陽落到海平面下，天色很快就暗了。
+take	i33076				搭公車到機場大約需要四十分鐘。
+take	i27693				她從架上拿了一本書。
+take	i32134				外面要下雨了，記得帶傘。
+take	i30924				我們搭火車去台南。
+take	i32922				他欣然接受了同事送的生日禮物。
+take	i27410				這顆藥要在飯後服用。
+book	i70180				她寫了一本介紹台灣夜市的書。
+book	i34211				我已經訂好了明晚兩個人的座位。
+book	i107179				店主把今天的收入逐筆記進帳簿。
+present	i9499				以目前的速度，我們今天下班前就能完成。
+present	i32498				工程師向客戶展示了新功能。
+present	i10145				開會時，所有組員都在場。
+present	i106384				她送我一份親手做的生日禮物。
+charge	i33338				這家店會另外收取外送費。
+charge	i106612				這項服務不會額外收費。
+charge	i24305				出門前，先幫手機充電。
+charge	i71869				她在法庭上否認了這項指控。
+right	i3513				你算得對，答案是四十二。
+right	i20800				過了紅綠燈之後向右轉。
+right	i106818				每位乘客都有權利申請退款。
+look	i32408				請看著鏡頭，等我數到三。
+look	i32420				他看起來有點累。
+look	i32522				我在找弄丟的鑰匙。
+apple	i77708	n	The fruit of an apple tree.	蘋果	我把蘋果切成四塊，分給小朋友。
+apple	i103273	n	The tree that produces apples.	蘋果樹	果園門口那棵蘋果樹今年結了很多果實。
+consolidate	i22930	v	To unite into a single organization or group.	合併；統合	兩家公司合併成一家公司。
+consolidate	i22931	v	To bring several things together into one system or whole.	整合；彙整	我們把不同部門的報表整合成一份文件。
+consolidate	editorial-strengthen	v	To make something stronger or more stable.	鞏固；加強	睡眠有助於鞏固新形成的記憶。
+hello	editorial-greeting	int	A greeting used when meeting someone or answering the phone.	你好；喂	她一接起電話，就先說了一聲：「喂，你好！」
+hello	editorial-salutation	n	An instance of saying hello.	招呼；問候	他走進辦公室，先跟大家打了聲招呼。
+spring	i117309				春天一到，公園裡的花就開始開了。
+spring	i31550				小貓從沙發上一躍而下。
+spring	i59389				按下開關後，彈簧會把蓋子推回原位。
+spring	i86235				村民每天都到山腳下的泉邊取水。
+match	i34952				帳單上的金額和收據一致。
+match	i56064				他用火柴點燃爐火。
+match	i75988				我們明天要去看一場足球賽。
+plant	i57398				那座工廠專門製造電池。
+plant	i35564				這種植物只需要少量的水。
+plant	i29566				我們在後院種了三棵樹。
+date	i116878				請在表格右上角填上今天的日期。
+date	i81169				他們週六晚上有一場約會。
+date	i77874				她在燕麥粥裡加了幾顆椰棗。

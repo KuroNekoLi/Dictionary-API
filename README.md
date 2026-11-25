@@ -87,13 +87,25 @@ curl -X GET 'http://localhost:8000/word/adjust' -H 'accept: application/json'
 
 ### 免費本機 ECDICT 詞庫
 
-服務會先查既有 words.db 快取，再查 VPS 本機的 ECDICT SQLite 索引，最後才對 ECDICT 沒有的單字呼叫 Cambridge。常見字即使 Cambridge 回傳 403，仍可由本機詞庫提供結果。
+服務會查本機 WordNet 詞義索引和既有 words.db 快取，接著按順序查 ECDICT CSV 匯入索引、ECDICT 1.0.28 SQLite 版，最後才使用 Cambridge。若查得到有中文例句的 WordNet 詞條，回傳該詞條的分義資料並沿用現有音標。
 
 ECDICT CSV 來源是 skywind3000/ECDICT（https://github.com/skywind3000/ECDICT），授權檔保存在 data/ECDICT-LICENSE。原始 CSV 和產生的 data/ecdict.db 留在 VPS，不納入 Git。回應沿用既有 /word/{word} 格式；ECDICT 資料提供一般音標與中文釋義，沒有英美腔調區分或例句。API 輸出前會以 OpenCC `s2twp` 將中文釋義及例句中的中文轉為台灣繁體（含常用詞彙），原始字典資料不會被改寫。
 
 更新詞庫時，在 data/ 放入最新版 ecdict.csv 和授權檔，再執行：
 
     python -m app.infrastructure.db.import_ecdict
+
+把 [ECDICT 1.0.28 的 SQLite 版](https://github.com/skywind3000/ECDICT/releases/tag/1.0.28) 解出的 `stardict.db` 放到 `data/ecdict-release-28.db` 即可啟用補充索引。此版有 3,402,564 筆詞條，沒有可用的例句。
+
+### 按詞義查詢與繁體中文例句
+
+詞義索引將 [OMW English Wordnet 2.0](https://github.com/omwn/omw-data/releases/tag/v2.0) 與 [Chinese Open Wordnet 1.1](https://bond-lab.github.io/cow/) 的詞義透過共用的 ILI ID 對齊。詞網收錄的中文例句直接隸屬該詞義，另外用 `reviewed_examples.tsv` 為常見詞補上逐義撰寫的繁體例句。缺少可靠例句的詞義仍可查詢。
+
+取得兩個詞網官方壓縮檔並解壓，保留每份 XML 旁的 LICENSE。把以下命令的路徑換成解壓位置：
+
+    python -m app.infrastructure.db.import_wordnet omw-en/omw-en.xml cow/cow-1.1.xml
+
+索引會寫到 `data/wordnet.db`，包含詞網的授權聲明。API 保留 `examples[].example_text` 並提供可選的 `source`、`author`、`source_url`、`license_url`、`match_type`。中文文字統一為台灣繁體。
 
 ## FAQ
 

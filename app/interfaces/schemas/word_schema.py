@@ -1,10 +1,13 @@
+import re
+
 from pydantic import BaseModel, Field
-from pydantic import field_validator
+from pydantic import field_validator, model_validator
 from typing import List, Optional
 from opencc import OpenCC
 
 
 _traditional_chinese = OpenCC("s2twp.json")
+_han_character = re.compile(r"[\u3400-\u9fff]")
 
 
 class PronunciationsSchema(BaseModel):
@@ -15,6 +18,11 @@ class PronunciationsSchema(BaseModel):
 
 class ExampleSchema(BaseModel):
     example_text: str = Field(..., description="例句；中文內容使用台灣繁體")
+    source: Optional[str] = None
+    author: Optional[str] = None
+    source_url: Optional[str] = None
+    license_url: Optional[str] = None
+    match_type: Optional[str] = None
 
     @field_validator("example_text", mode="before")
     @classmethod
@@ -22,6 +30,13 @@ class ExampleSchema(BaseModel):
         if isinstance(value, str):
             return _traditional_chinese.convert(value)
         return value
+
+    @model_validator(mode="after")
+    def use_chinese_from_legacy_example(self):
+        # Older Cambridge cache rows store English followed by the Chinese translation.
+        if self.source is None and (start := _han_character.search(self.example_text)):
+            self.example_text = self.example_text[start.start():]
+        return self
 
 
 class DefinitionSchema(BaseModel):
@@ -35,6 +50,11 @@ class DefinitionSchema(BaseModel):
         if isinstance(value, str):
             return _traditional_chinese.convert(value)
         return value
+
+    @field_validator("examples")
+    @classmethod
+    def keep_chinese_examples(cls, value):
+        return [example for example in value if _han_character.search(example.example_text)]
 
 
 class EntrySchema(BaseModel):

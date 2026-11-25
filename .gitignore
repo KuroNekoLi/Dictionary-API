@@ -148,3 +148,5 @@ $RECYCLE.BIN/
 # ECDICT source data and generated local index (keep ECDICT-LICENSE)
 /data/ecdict.csv
 /data/ecdict.db
+/data/ecdict-release-28.db
+/data/wordnet.db
