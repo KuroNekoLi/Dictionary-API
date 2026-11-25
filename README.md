@@ -103,7 +103,7 @@ ECDICT CSV 來源是 skywind3000/ECDICT（https://github.com/skywind3000/ECDICT�
 
 `batch_wordnet_examples.tsv` 補入同一 ILI 的 WordNet 英文例句離線譯文，回應標為「自動翻譯」。這批資料經詞義關鍵詞、英文句子結構和回譯檢查，仍可能有翻譯瑕疵。`word_atlas_examples.tsv` 只收錄已核對的單字與 ILI 組合，用於仍缺例句的詞義。[Word Atlas](https://github.com/designfuchen/word-atlas/blob/main/README.en.md#open-dataset) 的例句由 Word Atlas contributors（词光）提供，依 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 使用並轉成繁體。
 
-`common_word_examples.tsv` 為按 ECDICT 詞頻挑選的 1,000 個常見單字加入英中雙語例句。資料取自 Word Atlas 的第一個常用詞義和第一條例句，依詞性及 WordNet 詞頻順序關聯到詞義；API 例句會同時顯示英文原句與台灣繁體中文翻譯，並保留 Word Atlas 來源資訊。
+`common_word_examples.tsv` 累計為 6,000 個常見單字加入英中雙語例句，按 ECDICT 詞頻排序；沒有 ECDICT 頻率的少數詞條按 Word Atlas 的 CEFR 程度排序。資料取自 Word Atlas 的第一個常用詞義和第一條例句；先按詞性及英文、中文定義比對 WordNet，無法可靠對應時保留 Word Atlas 自己的詞性與雙語詞義，避免把例句放到意思不符的詞義下。API 例句會同時顯示英文原句與台灣繁體中文翻譯，並保留 Word Atlas 來源資訊。
 
 取得兩個詞網官方壓縮檔並解壓，保留每份 XML 旁的 LICENSE。把以下命令的路徑換成解壓位置：
 

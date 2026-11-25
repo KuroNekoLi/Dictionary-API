@@ -7,7 +7,8 @@ from app.domain.models.word import Definition, Entry, Example, Word
 DB_PATH = Path(__file__).resolve().parents[3] / "data" / "wordnet.db"
 POS = {
     "n": "noun", "v": "verb", "a": "adjective", "s": "adjective", "r": "adverb",
-    "int": "interjection",
+    "int": "interjection", "prep": "preposition", "det": "determiner",
+    "pron": "pronoun", "conj": "conjunction", "num": "numeral", "phr": "phrase",
 }
 
 

@@ -191,6 +191,12 @@ def _index_common_word_examples(conn, path: Path, traditional):
     with path.open(encoding="utf-8", newline="") as source:
         for row in csv.DictReader(source, delimiter="\t"):
             word, synset = row["word"], row["synset"]
+            if row.get("pos") and row.get("en_definition") and row.get("zh_definition"):
+                conn.execute(
+                    """INSERT OR IGNORE INTO senses VALUES (?, ?, ?, 1, 0, ?, ?)""",
+                    (word, synset, row["pos"], row["en_definition"].strip(),
+                     traditional(row["zh_definition"].strip())),
+                )
             if not conn.execute(
                 "SELECT 1 FROM senses WHERE word = ? AND synset = ?", (word, synset)
             ).fetchone():
@@ -200,7 +206,7 @@ def _index_common_word_examples(conn, path: Path, traditional):
             bilingual = f"{english}\n{chinese}"
             _write_examples(conn, [(
                 word, synset, bilingual, "Word Atlas", ATLAS_AUTHOR, ATLAS_URL,
-                ATLAS_LICENSE, "common_word_atlas", 4
+                ATLAS_LICENSE, "common_word_atlas", -1
             )])
 
 
