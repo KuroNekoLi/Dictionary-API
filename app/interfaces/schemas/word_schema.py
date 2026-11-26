@@ -2,7 +2,7 @@ import re
 
 from pydantic import BaseModel, Field
 from pydantic import field_validator, model_validator
-from typing import List, Optional
+from typing import Any, Dict, List, Optional
 from opencc import OpenCC
 
 
@@ -66,3 +66,11 @@ class WordSchema(BaseModel):
     word: str = Field(..., description="英文單字")
     pronunciations: PronunciationsSchema
     entries: List[EntrySchema] = Field(default=[], description="詞條列")
+    word_atlas: Optional[Dict[str, Any]] = Field(
+        None,
+        description="Word Atlas 原始詞義與詞級例句；來源未將例句對應到個別詞義",
+    )
+    complete_dictionary: Optional[Dict[str, Any]] = Field(
+        None,
+        description="Complete Dictionary 補充例句；保留在字詞層級，不冒充個別詞義例句",
+    )

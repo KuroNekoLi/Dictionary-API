@@ -85,17 +85,13 @@ curl -X GET 'http://localhost:8000/word/adjust' -H 'accept: application/json'
 
 ---
 
-### 免費本機 ECDICT 詞庫
+### 單一資料庫與 ECDICT 詞庫
 
-服務會查本機 WordNet 詞義索引和既有 words.db 快取，接著按順序查 ECDICT CSV 匯入索引、ECDICT 1.0.28 SQLite 版，最後才使用 Cambridge。若查得到有中文例句的 WordNet 詞條，回傳該詞條的分義資料並沿用現有音標。
+服務只使用一份作用中的 SQLite 資料庫：`data/wordnet.db`。這份資料庫包含 WordNet 詞義與例句、ECDICT 詞條、Word Atlas 完整詞條、Complete_Dictionary 定義與雙語例句，以及舊查詢快取。查詢不再依賴分散的執行期資料庫；來源 SQLite 檔保留在 VPS 作為匯入來源與回復備份。
 
-ECDICT CSV 來源是 skywind3000/ECDICT（https://github.com/skywind3000/ECDICT），授權檔保存在 data/ECDICT-LICENSE。原始 CSV 和產生的 data/ecdict.db 留在 VPS，不納入 Git。回應沿用既有 /word/{word} 格式；ECDICT 資料提供一般音標與中文釋義，沒有英美腔調區分或例句。API 輸出前會以 OpenCC `s2twp` 將中文釋義及例句中的中文轉為台灣繁體（含常用詞彙），原始字典資料不會被改寫。
+ECDICT 主詞庫取自 skywind3000/ECDICT，1.0.28 SQLite 版有 3,402,564 筆詞條。整併後的 `ecdict_entries` 提供音標和中文釋義；WordNet 與 Word Atlas 提供英文詞義及雙語例句。OpenCC `s2twp` 會將匯入的中文轉為台灣繁體。
 
-更新詞庫時，在 data/ 放入最新版 ecdict.csv 和授權檔，再執行：
-
-    python -m app.infrastructure.db.import_ecdict
-
-把 [ECDICT 1.0.28 的 SQLite 版](https://github.com/skywind3000/ECDICT/releases/tag/1.0.28) 解出的 `stardict.db` 放到 `data/ecdict-release-28.db` 即可啟用補充索引。此版有 3,402,564 筆詞條，沒有可用的例句。
+部署時以 `app.infrastructure.db.merge_dictionary_sources` 將現有 ECDICT、快取資料庫、固定版 Word Atlas 和 Complete_Dictionary 合併到 `wordnet.db`。Complete_Dictionary 使用 `Complete_Dictionary.7z`（下載後 CSV 約 267 MB），匯入 770,611 筆單字記錄及 546,944 組可配對的英中例句。其詞義與例句維持字詞層級，API 不會把它們誤標成 WordNet 個別詞義例句。例句來源資訊隨記錄一起回傳。
 
 ### 按詞義查詢與繁體中文例句
 
@@ -106,6 +102,8 @@ ECDICT CSV 來源是 skywind3000/ECDICT（https://github.com/skywind3000/ECDICT�
 `checked_wordnet_examples.tsv` 是同一 WordNet 詞義原有英文例句的離線譯文候選，經回譯相似度篩選後匯入，仍屬自動翻譯，並非人工逐句校對。
 
 `common_word_examples.tsv` 累計為 6,000 個常見單字加入英中雙語例句，按 ECDICT 詞頻排序；沒有 ECDICT 頻率的少數詞條按 Word Atlas 的 CEFR 程度排序。資料取自 Word Atlas 的第一個常用詞義和第一條例句；先按詞性及英文、中文定義比對 WordNet，無法可靠對應時保留 Word Atlas 自己的詞性與雙語詞義，避免把例句放到意思不符的詞義下。API 例句會同時顯示英文原句與台灣繁體中文翻譯，並保留 Word Atlas 來源資訊。
+
+`word_atlas_source.json`（commit `4ff9c429745c12506a9d07d3c29f0791a66191d5`，SHA-256 `E4E3410809047711CD2A25FCCAFCEBB46124CE1EEB98829DC12DE0335DE71234`）保留固定版本的完整 Word Atlas 詞條。重建索引時，所有 7,298 個字詞的 13,733 個詞義與 14,596 個雙語例句會寫入獨立的 `word_atlas` 資料表，並由 `/word/{word}` 回傳為頂層 `word_atlas` 欄位。Word Atlas 的例句只標註到字詞，沒有逐句詞義標籤，因此保留在獨立欄位，不冒充 WordNet 詞義例句。回應保留英美音標、詞性、英文／中文定義、例句、分類與來源署名；中文轉為台灣繁體。來源內容由 AI 生成、經自動檢查但未逐條人工審校；授權與修改說明見 `WORD_ATLAS_CONTENT_LICENSE.md` 及資料庫 `licenses` 表。署名為 `Word Atlas contributors — CC BY 4.0`。
 
 `tatoeba_examples.tsv` 收錄經英文詞形及繁體中文釋義比對的句對，保留兩個 Tatoeba 句子頁面連結以供作者署名查核；文字依 [CC BY 2.0 FR](https://creativecommons.org/licenses/by/2.0/fr/) 使用，中文轉為台灣繁體。依目前匯入快照，6,000 個目標詞共有 18,981 個 WordNet 詞義，其中 9,785 個已有雙語例句，9,196 個仍缺少雙語例句。這些資料源尚未覆蓋所有詞義，不能將「每個詞義都有例句」視為已完成。
 

@@ -13,14 +13,14 @@ class QueryWordUsecase:
     def query_word(self, word: str) -> Word:
         db_word = self.repo.get_word(word)
         wordnet_word = self.wordnet_repo.get_word(word) if self.wordnet_repo else None
-        if wordnet_word and (
-            db_word is None
-            or any(d.examples for entry in wordnet_word.entries for d in entry.definitions)
-        ):
+        if wordnet_word:
             cached = db_word.pronunciations if db_word else Pronunciations()
+            cached.uk = cached.uk or wordnet_word.pronunciations.uk
+            cached.us = cached.us or wordnet_word.pronunciations.us
             ecdict_word = self.ecdict_repo.get_word(word) if self.ecdict_repo else None
             if ecdict_word:
                 cached.phonetic = cached.phonetic or ecdict_word.pronunciations.phonetic
+                wordnet_word.entries.extend(ecdict_word.entries)
             wordnet_word.pronunciations = cached
             return wordnet_word
         if db_word:
