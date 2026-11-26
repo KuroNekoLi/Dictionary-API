@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import List, Optional
+from typing import Any, List, Optional
 
 
 @dataclass
@@ -37,3 +37,9 @@ class Word:
     word: str
     pronunciations: Pronunciations = field(default_factory=Pronunciations)
     entries: List[Entry] = field(default_factory=list)
+    # Word Atlas examples are tagged at the word level, not to individual senses.
+    # Keep the full source entry separate so callers do not mistake that data for
+    # a WordNet sense mapping.
+    word_atlas: Optional[dict[str, Any]] = None
+    # This supplemental dictionary also keeps examples at the word level.
+    complete_dictionary: Optional[dict[str, Any]] = None
